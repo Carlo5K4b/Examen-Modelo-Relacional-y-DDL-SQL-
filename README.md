@@ -1,0 +1,79 @@
+-- Carlos Alberto Beltrán - Codigo: 24266219
+/* Creación de la base de datos*/
+CREATE DATABASE Sistema_Bibliografico;
+
+-- Tabla de Ubicaciones Geográficas
+CREATE TABLE Tbl_Geografica (
+    Id_ubicacion INT IDENTITY NOT NULL,
+	CONSTRAINT pk_Id_ubicacion PRIMARY KEY (Id_ubicacion),
+    Ciudad VARCHAR(100) NOT NULL,
+    Pais VARCHAR(100) NOT NULL,
+    Codigo_postal VARCHAR(20)
+);
+
+-- Tabla de Editorial
+CREATE TABLE Tbl_Editorial (
+    Id_editorial INT IDENTITY NOT NULL,
+    CONSTRAINT pk_Id_editorial PRIMARY KEY (Id_editorial),
+    Nombre VARCHAR(100) NOT NULL,
+    Direccion VARCHAR(100),
+    Telefono INT,
+    Email VARCHAR(100),
+    Id_ubicacion INT NOT NULL,
+    CONSTRAINT fk_Geografica_IdUbicacion 
+        FOREIGN KEY (Id_ubicacion) REFERENCES Tbl_Geografica(Id_ubicacion)
+);
+
+-- Tabla de Autores
+CREATE TABLE Tbl_Autores (
+    Id_autor INT IDENTITY NOT NULL,
+    CONSTRAINT pk_Id_autor PRIMARY KEY (Id_autor),
+    Nombre VARCHAR(100) NOT NULL,
+	Nacionalidad VARCHAR(100) NOT NULL,
+	Tipo_autor VARCHAR(20) NOT NULL CHECK (Tipo_autor IN ('Individual', 'Corporativo'))
+);
+
+-- Tabla de Publicaciones
+CREATE TABLE Tbl_Publicaciones (
+    Id_publicacion INT IDENTITY NOT NULL,
+    CONSTRAINT pk_Id_publicacion PRIMARY KEY (Id_publicacion),
+    Titulo VARCHAR(200) NOT NULL,
+	Clase_Categoria VARCHAR(20) NOT NULL CHECK (Clase_Categoria IN ('Libro', 'Revista', 'Periodico', 'tesis', 'otro')),
+    Fecha_publicacion DATE NOT NULL,
+    ISBN_ISSN VARCHAR(20),
+    volumen VARCHAR(20),
+    Serie VARCHAR(20),
+    paginas INT,
+    Id_editorial INT,
+    FOREIGN KEY (Id_editorial) REFERENCES Tbl_Editorial(Id_editorial)
+);
+
+-- Tabla relación entre las tablas Tbl_Autores & Tbl_Publicaciones
+CREATE TABLE Tbl_Autor_Publicaciones (
+    Id_publicacion INT,
+    Id_autor INT,
+	Conexion_vinculo VARCHAR(20) NOT NULL CHECK (Conexion_vinculo IN ('Autor', 'Editor', 'Traductor', 'Colaborador')),
+    
+    PRIMARY KEY (Id_publicacion, Id_autor, Conexion_vinculo),
+    FOREIGN KEY (Id_publicacion) REFERENCES Tbl_Publicaciones(Id_publicacion),
+    FOREIGN KEY (Id_autor) REFERENCES Tbl_Autores(Id_autor)
+);
+
+-- Tabla de Descriptores
+CREATE TABLE Tbl_Descriptor (
+    Id_descriptor INT IDENTITY NOT NULL,
+    CONSTRAINT pk_Id_descriptor PRIMARY KEY (Id_descriptor),
+    Descripcion VARCHAR(100) NOT NULL,
+    Categoria VARCHAR(50),
+	Nombre_Descriptor VARCHAR(100) NOT NULL
+	UNIQUE (Descripcion, categoria)
+);
+
+-- Tabla relación entre las tablas Tbl_Publicaciones & Tbl_Descriptor
+CREATE TABLE Tbl_Publicaciones_Descriptor (
+    Id_publicacion INT,
+    Id_descriptor INT,
+    PRIMARY KEY (Id_publicacion, Id_descriptor),
+    FOREIGN KEY (Id_publicacion) REFERENCES Tbl_Publicaciones(Id_publicacion),
+    FOREIGN KEY (Id_descriptor) REFERENCES Tbl_Descriptor(Id_descriptor)
+);
